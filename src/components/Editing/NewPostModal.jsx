@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/client';
-import { CREATE_BLOG, PUBLISH_BLOG } from '../../queries';
+import { CREATE_BLOG, PUBLISH_BLOG, GET_POSTS } from '../../queries';
 
 const NewPostModal = ({ isOpen, onRequestClose, onCreatePost }) => {
   const [title, setTitle] = useState('');
@@ -27,7 +27,7 @@ const NewPostModal = ({ isOpen, onRequestClose, onCreatePost }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const { data } = await createBlog({
         variables: {
@@ -36,12 +36,29 @@ const NewPostModal = ({ isOpen, onRequestClose, onCreatePost }) => {
             author,
             category,
             content,
-            published
+            published,
           },
         },
+        update: (cache, { data: { createBlog } }) => {
+          const existingBlogs = cache.readQuery({
+            query: GET_POSTS,
+          });
+  
+          if (existingBlogs && existingBlogs.blogs) {
+            cache.writeQuery({
+              query: GET_POSTS,
+              data: {
+                blogs: [...existingBlogs.blogs, createBlog],
+              },
+            });
+          }
+        },
+        refetchQueries: [{ query: GET_POSTS }],
       });
+  
       const blogId = data.createBlog.id;
       await handlePublishBlog(blogId);
+  
       if (!errorMessage) {
         onCreatePost(data.createBlog);
         onRequestClose();
@@ -50,11 +67,12 @@ const NewPostModal = ({ isOpen, onRequestClose, onCreatePost }) => {
       setErrorMessage('Error creating blog: ' + error.message);
     }
   };
+  
 
   return (
     isOpen && (
-      <div style={{ zIndex: 9999 }} className="text-black fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-9999">
-        <div className="bg-white p-8 rounded-lg w-96">
+      <div style={{ zIndex: 9999 }} className="text-white fixed inset-0 flex items-center justify-center bg-black bg-opacity-75">
+        <div className="bg-gray-900 p-8 rounded-lg w-96">
           {errorMessage && <div className="text-red-500">{errorMessage}</div>}
           <form onSubmit={handleSubmit}>
             <input
@@ -62,40 +80,40 @@ const NewPostModal = ({ isOpen, onRequestClose, onCreatePost }) => {
               placeholder="Title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
+              className="w-full mb-4 p-2 bg-gray-800 text-gray-100 border border-gray-700 rounded"
             />
             <input
               type="text"
               placeholder="Author"
               value={author}
               onChange={(e) => setAuthor(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
+              className="w-full mb-4 p-2 bg-gray-800 text-gray-100 border border-gray-700 rounded"
             />
             <input
               type="text"
               placeholder="Category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
+              className="w-full mb-4 p-2 bg-gray-800 text-gray-100 border border-gray-700 rounded"
             />
             <input
               type="date"
               value={published}
               onChange={(e) => setPublished(e.target.value)}
-              className="w-full mb-4 p-2 border rounded"
+              className="w-full mb-4 p-2 bg-gray-800 text-gray-100 border border-gray-700 rounded"
             />
             <textarea
               placeholder="Content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="w-full mb-4 p-2 h-32 border rounded"
+              className="w-full mb-4 p-2 h-32 bg-gray-800 text-gray-100 border border-gray-700 rounded"
             />
-            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-              Create Post
-            </button>
-            <button type="button" onClick={onRequestClose} className="bg-red-500 text-white px-4 py-2 rounded ml-4">
-              Close
-            </button>
+             <button type="submit" className="bg-green-800 text-green-500 px-4 py-2 rounded hover:bg-green-900">
+            Create Post
+          </button>
+          <button type="button" onClick={onRequestClose} className="text-blue-500 bg-gray-800 px-4 py-2 rounded ml-4">
+            Close
+          </button>
           </form>
         </div>
       </div>

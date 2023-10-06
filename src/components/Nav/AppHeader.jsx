@@ -31,20 +31,20 @@ function AppHeader({ toggleEditMode, isEditMode }) {
   };
 
   return (
-    <header className="flex items-center justify-between bg-blue-600 p-4 text-white">
+    <header className="flex items-center justify-between bg-gray-800 p-4 text-white">
       <h1 className="text-2xl font-bold">Hygraph News Feed</h1>
       <div className="flex items-center">
         {isEditMode && (
           <button
             onClick={openNewPostModal}
-            className="mr-4 px-4 py-2 bg-green-500 text-white rounded transition-colors hover:bg-green-600"
+            className="mr-4 px-4 py-2 bg-green-800 text-green-300 rounded transition-colors hover:bg-green-900"
           >
             Add New Post
           </button>
         )}
         <button
           onClick={toggleEditMode}
-          className="px-4 py-2 bg-gray-200 text-black rounded transition-colors hover:bg-gray-300"
+          className="px-4 py-2 bg-gray-600 text-gray-50 rounded transition-colors hover:bg-gray-700"
         >
           {isEditMode ? 'Exit Edit Mode' : 'Enter Edit Mode'}
         </button>

@@ -1,25 +1,20 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { GET_POSTS, CREATE_BLOG, DELETE_BLOG, PUBLISH_BLOG } from '../../queries';
+import { GET_POSTS, DELETE_BLOG } from '../../queries';
 import Sorting from './Sorting';
 import BlogPostModal from './BlogPostModal';
-import NewPostModal from '../Editing/NewPostModal';
 
 function BlogPostList({ isEditMode }) {
   const { loading, error, data } = useQuery(GET_POSTS);
   const [sortOptions, setSortOptions] = useState({ orderBy: 'title' });
   const [todayStatus, setTodayStatus] = useState('all'); 
   const [searchTerm, setSearchTerm] = useState('');
-
- 
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
-
   const [deleteBlog] = useMutation(DELETE_BLOG);
 
   
-  
-  
+
   const handleDeletePost = (postId) => {
     console.log("Deleting post with ID:", postId);
     deleteBlog({ 
@@ -43,7 +38,6 @@ function BlogPostList({ isEditMode }) {
     setIsPostModalOpen(false);
   };
 
-
   const categories = useMemo(() => {
     if (!data) return [];
     const allCategories = data.blogs.map(blog => blog.category);
@@ -54,7 +48,6 @@ function BlogPostList({ isEditMode }) {
     if (!data) return [];
     let blogs = [...data.blogs];
     
-
     if (todayStatus === 'today') {
       const today = new Date().toISOString().split('T')[0];
       blogs = blogs.filter(blog => blog.published.split('T')[0] === today);
@@ -103,23 +96,21 @@ function BlogPostList({ isEditMode }) {
         
        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
   {sortedBlogs.map((post, index) => (
-    <div key={index} className="bg-white p-6 rounded-lg shadow-lg transition-transform transform hover:scale-105 z-9998">
-      <h2 className="text-lg font-bold mb-2 text-gray-800">{post.title}</h2>
-      <p className="text-blue-500 mb-2 font-semibold">{post.category}</p>
-      <p className="text-gray-600 mb-2">{post.author}</p>
-      <p className="text-gray-500 text-sm mb-2">
-        {new Date(post.published).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-      </p>
-      <p className="text-gray-600 text-sm mb-2 overflow-ellipsis overflow-hidden" style={{ maxHeight: '50px' }}>
-        {post.content.slice(0, 100)}...
-      </p>
-      <div className="mt-4 flex justify-between">
-        <button onClick={() => openPostModal(post)} className="text-blue-500 font-bold">Read more</button>
-        {isEditMode && (
-          <button onClick={() => handleDeletePost(post.id)} className="text-red-500 font-semibold hover:text-red-700">Delete</button>
-        )}
-      </div>
+    <div key={index} className="bg-gray-800 text-white p-6 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transform transition-all duration-200">
+    <h2 className="text-2xl font-semibold mb-2 text-gray-100 tracking-tight leading-snug">{post.title}</h2>
+    <p className="text-amber-600 mb-2 font-semibold text-sm uppercase tracking-widest">{post.category}</p>
+    <p className="text-gray-500 mb-1 text-xs uppercase tracking-wider">{post.author}</p>
+    <p className="text-gray-400 text-xs mb-2">{new Date(post.published).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' })}</p>
+    <p className="text-gray-400 text-xs mb-4 overflow-ellipsis overflow-hidden" style={{ maxHeight: '50px' }}>
+      {post.content.slice(0, 100)}...
+    </p>
+    <div className="mt-2 flex justify-between items-center">
+      <button onClick={() => openPostModal(post)} className="text-amber-600 hover:text-amber-500 font-medium text-sm">Read more</button>
+      {isEditMode && <button onClick={() => handleDeletePost(post.id)} className="text-red-400 hover:text-red-500 font-semibold text-sm">Delete</button>}
     </div>
+  </div>
+  
+  
   ))}
 </div>
 
