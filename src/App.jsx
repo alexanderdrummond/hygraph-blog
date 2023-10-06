@@ -1,9 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import BlogPostList from './components/Blog/BlogPostList';
 import AppHeader from './components/Nav/AppHeader';
 
 function App() {
   const [isEditMode, setIsEditMode] = useState(false);
+
+  useEffect(() => {
+    document.title = "Hygraph News Feed";
+  }, []);
 
   const toggleEditMode = () => {
     setIsEditMode((prev) => !prev);
